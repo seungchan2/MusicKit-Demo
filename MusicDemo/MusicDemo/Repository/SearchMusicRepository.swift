@@ -10,11 +10,11 @@ import MusicKit
 import Combine
 
 protocol SearchMusicRepositoryType {
-    func getMusicInfo(query: String) -> Future<[MusicInfo], Error>
+    func getMusicInfo(page: Int, query: String) -> Future<[MusicInfo], Error>
 }
 
 final class SearchMusicRepository: SearchMusicRepositoryType {
-    func getMusicInfo(query: String) -> Future<[MusicInfo], Error> {
+    func getMusicInfo(page: Int, query: String) -> Future<[MusicInfo], Error> {
         return Future { promise in
             Task {
                 let status = await MusicAuthorization.request()
@@ -25,10 +25,11 @@ final class SearchMusicRepository: SearchMusicRepositoryType {
                         var request = MusicCatalogSearchRequest(term: query, types: [Song.self])
                         
                         request.limit = 25
-                        request.offset = 1
+                        request.offset = (page-1) * 25
                         
                         let result = try await request.response()
                         
+                        print(result.songs.first!.playParameters)
                         let musicInfo: [MusicInfo] = result.songs.compactMap { song in
                             MusicInfo(
                                 title: song.title,

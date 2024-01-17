@@ -11,17 +11,19 @@ struct SearchView: View {
     @State private var musicInfo: [MusicInfo] = []
     @StateObject var viewModel: SearchViewModel
     @State private var searchText: String = ""
+    @State var page: Int = 1
     
     var body: some View {
         VStack {
             TextField("Search Music",
                       text: $searchText,
                       onCommit: {
-                viewModel.send(action: .searchMusic(query: searchText))
+                viewModel.fetchedMusicList.removeAll()
+                viewModel.send(action: .searchMusic(page: page, query: searchText))
             })
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding()
-            ScrollView {
+            List {
                 contentView
             }
             .background(Color.white)
@@ -36,6 +38,14 @@ struct SearchView: View {
                            date: Date(),
                            albumArtwork: data.albumArtwork)
             .padding(.horizontal, 10)
+            .onAppear {
+                guard let index = viewModel.fetchedMusicList.firstIndex(where: { $0.id == data.id }) else { return }
+                                
+                if index == viewModel.fetchedMusicList.count - 1 {
+                    page += 1
+                    viewModel.send(action: .searchMusic(page: page, query: searchText))
+                }
+            }
         }
     }
 }

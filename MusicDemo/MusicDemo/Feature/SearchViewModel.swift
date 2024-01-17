@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import MediaPlayer
 
 final class SearchViewModel: ObservableObject {
     
@@ -19,22 +20,22 @@ final class SearchViewModel: ObservableObject {
     }
     
     enum Action {
-        case searchMusic(query: String)
+        case searchMusic(page: Int, query: String)
     }
     
     func send(action: Action) {
         switch action {
-        case let .searchMusic(query):
-            self.searchMusic(query: query)
+        case let .searchMusic(page, query):
+            self.searchMusic(page: page, query: query)
         }
     }
     
-    private func searchMusic(query: String) {
-        repository.getMusicInfo(query: query)
+    private func searchMusic(page: Int, query: String) {
+        repository.getMusicInfo(page: page,query: query)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { _ in},
                   receiveValue: { data in
-                self.fetchedMusicList = data
+                self.fetchedMusicList += data
             })
             .store(in: &cancellables)
     }
