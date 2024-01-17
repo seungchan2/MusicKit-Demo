@@ -10,14 +10,21 @@ import SwiftUI
 struct SearchView: View {
     @State private var musicInfo: [MusicInfo] = []
     @StateObject var viewModel: SearchViewModel
+    @State private var searchText: String = ""
     
     var body: some View {
-        ScrollView {
-            contentView
-        }
-        .background(Color.white)
-        .onAppear {
-            viewModel.send(action: .searchMusic(query: "fkj"))
+        VStack {
+            TextField("Search Music",
+                      text: $searchText,
+                      onCommit: {
+                viewModel.send(action: .searchMusic(query: searchText))
+            })
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .padding()
+            ScrollView {
+                contentView
+            }
+            .background(Color.white)
         }
     }
     
@@ -25,13 +32,12 @@ struct SearchView: View {
         ForEach(viewModel.fetchedMusicList) { data in
             SearchItemView(title: data.title,
                            artist: data.artistName,
-                         genre: data.genre,
-                         date: Date(),
-                         albumArtwork: data.albumArtwork)
+                           genre: data.genre,
+                           date: Date(),
+                           albumArtwork: data.albumArtwork)
             .padding(.horizontal, 10)
         }
     }
-    
 }
 
 struct SearchItemView: View {
@@ -63,7 +69,6 @@ struct SearchItemView: View {
             
             Text("Genre: \(genre)")
                 .foregroundColor(.black)
-            
         }
     }
 }
